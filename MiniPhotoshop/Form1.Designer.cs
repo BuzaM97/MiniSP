@@ -45,7 +45,7 @@
             // lblSelectImg
             // 
             lblSelectImg.AutoSize = true;
-            lblSelectImg.Location = new Point(236, 117);
+            lblSelectImg.Location = new Point(41, 37);
             lblSelectImg.Name = "lblSelectImg";
             lblSelectImg.Size = new Size(110, 15);
             lblSelectImg.TabIndex = 1;
@@ -69,5 +69,6 @@
 
         private Button button1;
         private Label lblSelectImg;
+        private PictureBox originalPictureBox;
     }
 }
