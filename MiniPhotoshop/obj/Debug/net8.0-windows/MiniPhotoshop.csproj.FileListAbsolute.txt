@@ -1,0 +1,17 @@
+C:\Users\buzam\Documents\MiniSP\MiniPhotoshop\bin\Debug\net8.0-windows\MiniPhotoshop.exe
+C:\Users\buzam\Documents\MiniSP\MiniPhotoshop\bin\Debug\net8.0-windows\MiniPhotoshop.deps.json
+C:\Users\buzam\Documents\MiniSP\MiniPhotoshop\bin\Debug\net8.0-windows\MiniPhotoshop.runtimeconfig.json
+C:\Users\buzam\Documents\MiniSP\MiniPhotoshop\bin\Debug\net8.0-windows\MiniPhotoshop.dll
+C:\Users\buzam\Documents\MiniSP\MiniPhotoshop\bin\Debug\net8.0-windows\MiniPhotoshop.pdb
+C:\Users\buzam\Documents\MiniSP\MiniPhotoshop\obj\Debug\net8.0-windows\MiniPhotoshop.csproj.GenerateResource.cache
+C:\Users\buzam\Documents\MiniSP\MiniPhotoshop\obj\Debug\net8.0-windows\MiniPhotoshop.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\buzam\Documents\MiniSP\MiniPhotoshop\obj\Debug\net8.0-windows\MiniPhotoshop.AssemblyInfoInputs.cache
+C:\Users\buzam\Documents\MiniSP\MiniPhotoshop\obj\Debug\net8.0-windows\MiniPhotoshop.AssemblyInfo.cs
+C:\Users\buzam\Documents\MiniSP\MiniPhotoshop\obj\Debug\net8.0-windows\MiniPhotoshop.csproj.CoreCompileInputs.cache
+C:\Users\buzam\Documents\MiniSP\MiniPhotoshop\obj\Debug\net8.0-windows\MiniPhotoshop.sourcelink.json
+C:\Users\buzam\Documents\MiniSP\MiniPhotoshop\obj\Debug\net8.0-windows\MiniPhotoshop.dll
+C:\Users\buzam\Documents\MiniSP\MiniPhotoshop\obj\Debug\net8.0-windows\refint\MiniPhotoshop.dll
+C:\Users\buzam\Documents\MiniSP\MiniPhotoshop\obj\Debug\net8.0-windows\MiniPhotoshop.pdb
+C:\Users\buzam\Documents\MiniSP\MiniPhotoshop\obj\Debug\net8.0-windows\MiniPhotoshop.genruntimeconfig.cache
+C:\Users\buzam\Documents\MiniSP\MiniPhotoshop\obj\Debug\net8.0-windows\ref\MiniPhotoshop.dll
+C:\Users\buzam\Documents\MiniSP\MiniPhotoshop\obj\Debug\net8.0-windows\MiniPhotoshop.btnBrwsImg.resources
