@@ -63,3 +63,21 @@ new pixels = = (10 + 20 + 10 + 20 + 360 + 20 + 10 + 20 + 10) / 16
 = 30
 Links
 https://lodev.org/cgtutor/filtering.html
+
+**Used classes**
+OpenFileDialog
+Usage: For browse images
+https://learn.microsoft.com/hu-hu/dotnet/api/system.windows.forms.openfiledialog?view=windowsdesktop-10.0
+
+Bitmap Class:
+Usage: Define pixel data to work with it
+https://learn.microsoft.com/en-us/dotnet/api/system.drawing.bitmap?view=net-11.0-pp
+
+Pontonkénti műveletek:
+https://pippin.gimp.org/image-processing/chap_point.html
+
+Pixlek elérése:
+https://learn.microsoft.com/hu-hu/dotnet/api/system.drawing.bitmap.lockbits?view=net-11.0-pp
+
+Stopwatch xeample:
+https://learn.microsoft.com/en-us/dotnet/standard/parallel-programming/how-to-write-a-simple-parallel-for-loop
