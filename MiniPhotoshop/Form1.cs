@@ -120,6 +120,7 @@ namespace MiniPhotoshop
             numGamma.Enabled = enabled;
             btnReset.Enabled = enabled;
             btnLog.Enabled = enabled;
+            btnGrayscale.Enabled = enabled;
         }
 
         // Mindkét kép levétele és felszabadítása 
@@ -177,9 +178,10 @@ namespace MiniPhotoshop
             lstHistory.Items.Clear();
         }
 
-        private async void btnLog_Click(object sender, EventArgs e)
+    
+        private async void btnGrayscale_Click(object sender, EventArgs e)
         {
-            await RunOperation("Logaritmikus", ImageOps.Logarithmic);
+            await RunOperation("Szürkítés", ImageOps.Grayscale);
         }
     }
 }

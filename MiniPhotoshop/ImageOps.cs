@@ -137,5 +137,44 @@ namespace MiniPhotoshop
 
             return ApplyLut(src, lut);
         }
+        // Szürkítés: Y = 0.299 R + 0.587 G + 0.114 B
+        // Egész számokkal: az együtthatók 256-tal felszorozva (77 + 150 + 29 = 256),
+        // a végén >> 8 osztja vissza. A szorzásokat táblázatok váltják ki.
+        public static ImageData Grayscale(ImageData src)
+        {
+            int[] lutR = new int[256];
+            int[] lutG = new int[256];
+            int[] lutB = new int[256];
+            for (int i = 0; i < 256; i++)
+            {
+                lutR[i] = 77 * i;
+                lutG[i] = 150 * i;
+                lutB[i] = 29 * i;
+            }
+
+            var dst = new ImageData(src.Width, src.Height);
+            byte[] s = src.Pixels;
+            byte[] d = dst.Pixels;
+            int rowBytes = src.Width * 4;
+
+            ForEachRow(src.Height, y =>
+            {
+                int start = y * rowBytes;
+                int end = start + rowBytes;
+
+                for (int i = start; i < end; i += 4)
+                {
+                    // +128 a kerekítéshez (fél egység), >> 8 = osztás 256-tal
+                    byte gray = (byte)((lutB[s[i]] + lutG[s[i + 1]] + lutR[s[i + 2]] + 128) >> 8);
+
+                    d[i] = gray;      // B
+                    d[i + 1] = gray;      // G
+                    d[i + 2] = gray;      // R
+                    d[i + 3] = s[i + 3];  // A
+                }
+            });
+
+            return dst;
+        }
     }
 }

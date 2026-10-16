@@ -40,6 +40,7 @@
             btnReset = new Button();
             lstHistory = new ListBox();
             btnLog = new Button();
+            btnGrayscale = new Button();
             ((System.ComponentModel.ISupportInitialize)pbOrig).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pbResult).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numGamma).BeginInit();
@@ -162,13 +163,23 @@
             btnLog.TabIndex = 11;
             btnLog.Text = "Logaritmikus";
             btnLog.UseVisualStyleBackColor = true;
-            btnLog.Click += btnLog_Click;
+            // 
+            // btnGrayscale
+            // 
+            btnGrayscale.Location = new Point(297, 293);
+            btnGrayscale.Name = "btnGrayscale";
+            btnGrayscale.Size = new Size(75, 23);
+            btnGrayscale.TabIndex = 12;
+            btnGrayscale.Text = "Szürkítés";
+            btnGrayscale.UseVisualStyleBackColor = true;
+            btnGrayscale.Click += btnGrayscale_Click;
             // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(btnGrayscale);
             Controls.Add(btnLog);
             Controls.Add(lstHistory);
             Controls.Add(btnReset);
@@ -205,5 +216,6 @@
         private Button btnReset;
         private ListBox lstHistory;
         private Button btnLog;
+        private Button btnGrayscale;
     }
 }
