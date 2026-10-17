@@ -4,22 +4,20 @@ namespace MiniPhotoshop
 {
     public partial class MainForm : Form
     {
-        // A megjelenített képek
         private Bitmap? originalBitmap;
         private Bitmap? resultBitmap;
+        private Bitmap? histogramBitmap;
 
-        // Az eredeti kép pixele
         private ImageData? originalImage;
-        private ImageData? currentImage;
+        private ImageData? currentImage;   // a következő művelet ebből dolgozik
+
         public MainForm()
         {
             InitializeComponent();
             chkParallel.Checked = ImageOps.UseParallel;
         }
 
-        private void lblSelectImg_Click(object sender, EventArgs e)
-        {
-        }
+        #region Betöltés, visszaállítás, beállítások
 
         private void btnBrowseImg_Click(object sender, EventArgs e)
         {
@@ -33,29 +31,21 @@ namespace MiniPhotoshop
 
                 try
                 {
-                    // Másolatot készítünk, hogy a fájl ne maradjon zárolva
+                    // másolat, különben a fájl zárolva marad
                     Bitmap loaded;
                     using (Bitmap fromFile = new Bitmap(dialog.FileName))
-                    {
                         loaded = new Bitmap(fromFile);
-                    }
 
                     ClearImages();
 
                     originalBitmap = loaded;
                     pbOrig.Image = originalBitmap;
 
-                    // Pixelek kiolvasása egyszer, betöltéskor
                     originalImage = ImageOps.FromBitmap(originalBitmap);
-
-                    //Betöltéskor a két kép megegyezik
                     currentImage = originalImage;
-
-                    // Jobbra egy független másolat kerül
                     ShowResult(new Bitmap(originalBitmap));
 
                     lblSelectImg.Visible = false;
-                    lblTime.Text = "";
                 }
                 catch (Exception ex)
                 {
@@ -64,16 +54,49 @@ namespace MiniPhotoshop
             }
         }
 
+        private void btnReset_Click(object sender, EventArgs e)
+        {
+            if (originalBitmap == null) return;
+
+            currentImage = originalImage;
+            ShowResult(new Bitmap(originalBitmap));
+            lstHistory.Items.Clear();
+        }
+
+        private void chkParallel_CheckedChanged(object sender, EventArgs e)
+        {
+            ImageOps.UseParallel = chkParallel.Checked;
+        }
+
+        #endregion
+
+        #region Funkciók
+
         private async void btnNegate_Click(object sender, EventArgs e)
         {
             await RunOperation("Negálás", ImageOps.Negate);
         }
 
-        // Közös futtató minden funkcióhoz:
-        // háttérszálon lefuttatja a műveletet, méri az időt, majd megjeleníti az eredményt.
-        private async Task RunOperation(string name, Func<ImageData, ImageData> operation)
+        private async void btnGamma_Click(object sender, EventArgs e)
         {
-            if (originalImage == null)
+            double gamma = (double)numGamma.Value;
+            await RunOperation($"Gamma ({gamma})", img => ImageOps.Gamma(img, gamma));
+        }
+
+        private async void btnLog_Click(object sender, EventArgs e)
+        {
+            await RunOperation("Logaritmikus", ImageOps.Logarithmic);
+        }
+
+        private async void btnGrayscale_Click(object sender, EventArgs e)
+        {
+            await RunOperation("Szürkítés", ImageOps.Grayscale);
+        }
+
+        // a képet nem változtatja, csak kirajzolja a diagramot
+        private async void btnHistogram_Click(object sender, EventArgs e)
+        {
+            if (currentImage == null)
             {
                 MessageBox.Show("Előbb tölts be egy képet.");
                 return;
@@ -84,7 +107,76 @@ namespace MiniPhotoshop
 
             try
             {
-                // Csak magát a műveletet mérjük, a megjelenítést nem
+                var (hist, ms) = await Task.Run(() =>
+                {
+                    var sw = Stopwatch.StartNew();
+                    int[] h = ImageOps.ComputeHistogram(src);
+                    sw.Stop();
+                    return (h, sw.Elapsed.TotalMilliseconds);
+                });
+
+                pbHistogram.Image = null;
+                histogramBitmap?.Dispose();
+                histogramBitmap = ImageOps.DrawHistogram(hist, pbHistogram.Width, pbHistogram.Height);
+                pbHistogram.Image = histogramBitmap;
+
+                AddToHistory("Hisztogram", ms);
+            }
+            finally
+            {
+                SetButtonsEnabled(true);
+            }
+        }
+
+        private async void btnEqualize_Click(object sender, EventArgs e)
+        {
+            await RunOperation("Hisztogram kiegyenlítés", ImageOps.EqualizeHistogram);
+        }
+
+        private async void btnBox_Click(object sender, EventArgs e)
+        {
+            await RunOperation("Box szűrő", ImageOps.BoxFilter);
+        }
+
+        private async void btnGauss_Click(object sender, EventArgs e)
+        {
+            await RunOperation("Gauss szűrő", ImageOps.GaussFilter);
+        }
+
+        private async void btnSobel_Click(object sender, EventArgs e)
+        {
+            await RunOperation("Sobel", ImageOps.Sobel);
+        }
+
+        private async void btnLaplace_Click(object sender, EventArgs e)
+        {
+            await RunOperation("Laplace", ImageOps.Laplace);
+        }
+
+        // csak jelöli a pontokat, különben a piros négyzetek is a kép részévé válnának
+        private async void btnHarris_Click(object sender, EventArgs e)
+        {
+            await RunOperation("Jellemzőpontok (Harris)", ImageOps.Harris, changesImage: false);
+        }
+
+        #endregion
+
+        #region Segédfüggvények
+
+        private async Task RunOperation(string name, Func<ImageData, ImageData> operation, bool changesImage = true)
+        {
+            if (currentImage == null)
+            {
+                MessageBox.Show("Előbb tölts be egy képet.");
+                return;
+            }
+
+            ImageData src = currentImage;
+            SetButtonsEnabled(false);
+
+            try
+            {
+                // csak a műveletet mérjük, a megjelenítést nem
                 var (result, ms) = await Task.Run(() =>
                 {
                     var sw = Stopwatch.StartNew();
@@ -92,13 +184,12 @@ namespace MiniPhotoshop
                     sw.Stop();
                     return (r, sw.Elapsed.TotalMilliseconds);
                 });
-                currentImage = result;
-                ShowResult(ImageOps.ToBitmap(result));
-                string mode = ImageOps.UseParallel ? "párhuzamos" : "egyszálú";
-                string text = $"{name}: {ms:F2} ms ({mode})";
 
-                lblTime.Text = text;
-                lstHistory.Items.Add($"{lstHistory.Items.Count + 1}. {text}");
+                if (changesImage)
+                    currentImage = result;
+
+                ShowResult(ImageOps.ToBitmap(result));
+                AddToHistory(name, ms);
             }
             catch (Exception ex)
             {
@@ -110,38 +201,12 @@ namespace MiniPhotoshop
             }
         }
 
-        // Futás közben a gombok le vannak tiltva
-        private void SetButtonsEnabled(bool enabled)
+        private void AddToHistory(string name, double ms)
         {
-            btnBrowseImg.Enabled = enabled;
-            btnNegate.Enabled = enabled;
-            chkParallel.Enabled = enabled;
-            btnGamma.Enabled = enabled;
-            numGamma.Enabled = enabled;
-            btnReset.Enabled = enabled;
-            btnLog.Enabled = enabled;
-            btnGrayscale.Enabled = enabled;
+            string mode = ImageOps.UseParallel ? "párhuzamos" : "egyszálú";
+            lstHistory.Items.Add($"{lstHistory.Items.Count + 1}. {name}: {ms:F2} ms ({mode})");
         }
 
-        // Mindkét kép levétele és felszabadítása 
-        private void ClearImages()
-        {
-            pbOrig.Image = null;
-            pbResult.Image = null;
-
-            originalBitmap?.Dispose();
-            originalBitmap = null;
-
-            resultBitmap?.Dispose();
-            resultBitmap = null;
-
-            originalImage = null;
-            currentImage = null;
-
-            lstHistory.Items.Clear();
-        }
-
-        // Új eredmény megjelenítése, az előző eredmény felszabadítása
         private void ShowResult(Bitmap newResult)
         {
             pbResult.Image = null;
@@ -150,38 +215,51 @@ namespace MiniPhotoshop
             pbResult.Image = resultBitmap;
         }
 
+        private void ClearImages()
+        {
+            pbOrig.Image = null;
+            pbResult.Image = null;
+            pbHistogram.Image = null;
+
+            originalBitmap?.Dispose();
+            resultBitmap?.Dispose();
+            histogramBitmap?.Dispose();
+            originalBitmap = null;
+            resultBitmap = null;
+            histogramBitmap = null;
+
+            originalImage = null;
+            currentImage = null;
+            lstHistory.Items.Clear();
+        }
+
+        // futás közben semmit ne lehessen elindítani
+        private void SetButtonsEnabled(bool enabled)
+        {
+            btnBrowseImg.Enabled = enabled;
+            btnReset.Enabled = enabled;
+            chkParallel.Enabled = enabled;
+
+            btnNegate.Enabled = enabled;
+            btnGamma.Enabled = enabled;
+            numGamma.Enabled = enabled;
+            btnLog.Enabled = enabled;
+            btnGrayscale.Enabled = enabled;
+            btnHistogram.Enabled = enabled;
+            btnEqualize.Enabled = enabled;
+            btnBox.Enabled = enabled;
+            btnGauss.Enabled = enabled;
+            btnSobel.Enabled = enabled;
+            btnLaplace.Enabled = enabled;
+            btnHarris.Enabled = enabled;
+        }
+
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
             ClearImages();
             base.OnFormClosed(e);
         }
 
-        private void chkParallel_CheckedChanged(object sender, EventArgs e)
-        {
-            ImageOps.UseParallel = chkParallel.Checked;
-
-        }
-
-        private async void btnGamma_Click(object sender, EventArgs e)
-        {
-            double gamma = (double)numGamma.Value;
-            await RunOperation($"Gamma ({gamma})", img => ImageOps.Gamma(img, gamma));
-        }
-
-        private void btnReset_Click(object sender, EventArgs e)
-        {
-            if (originalBitmap == null) return;
-
-            currentImage = originalImage;
-            ShowResult(new Bitmap(originalBitmap));
-            lblTime.Text = "";
-            lstHistory.Items.Clear();
-        }
-
-    
-        private async void btnGrayscale_Click(object sender, EventArgs e)
-        {
-            await RunOperation("Szürkítés", ImageOps.Grayscale);
-        }
+        #endregion
     }
 }
